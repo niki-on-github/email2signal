@@ -102,6 +102,8 @@ class EmailHandler:
 
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
 
+        print("response:", response.status_code)
+
         if response.status_code == 201:
             return True
         else:
