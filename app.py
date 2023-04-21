@@ -86,7 +86,7 @@ class EmailHandler:
             print("no subject match found")
             msg = content
 
-        payload = {"message": msg, "number": self.config["sender_number"], "recipients": signal_receivers}
+        payload = {"message": msg, "number": self.config["sender_number"].replace("\\", ""), "recipients": signal_receivers}
 
         if match := re.search(self.image_regex, content):
             image = match.group(1).replace("\n", "")
