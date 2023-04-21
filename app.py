@@ -95,6 +95,11 @@ class EmailHandler:
         headers = {"Content-Type": "application/json"}
 
         url = urljoin(self.config["signal_rest_url"], "v2/send")
+
+        print("url:", url)
+        print("header:", headers)
+        print("payload:", payload)
+
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
 
         if response.status_code == 201:
@@ -123,7 +128,7 @@ async def amain(loop: asyncio.AbstractEventLoop):
 
 
 if __name__ == "__main__":
-    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    logging.basicConfig(stream=sys.stdout, level=logging.INFO)
     requests_log = logging.getLogger("requests.packages.urllib3")
     requests_log.setLevel(logging.DEBUG)
     requests_log.propagate = True
