@@ -83,6 +83,7 @@ class EmailHandler:
         if match := re.search(self.subject_regex, content):
             msg = match.group(1)
         else:
+            print("no match found")
             return False
 
         payload = {"message": msg, "number": self.config["sender_number"], "recipients": signal_receivers}
