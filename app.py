@@ -2,6 +2,7 @@ import asyncio
 import re
 import requests
 import json
+import logging
 import os
 import sys
 
@@ -121,6 +122,7 @@ async def amain(loop: asyncio.AbstractEventLoop):
 
 
 if __name__ == "__main__":
+    logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
     loop = asyncio.get_event_loop()
     loop.create_task(amain(loop=loop))
     try:
