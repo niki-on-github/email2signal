@@ -55,7 +55,7 @@ class EmailHandler:
 
         # send signal message if required
         if len(signal_numbers) > 0:
-            print("Forwarding message to signal")
+            print("Forwarding message to signal: {}".format(signal_numbers))
             success = await self.send_signal(envelope, signal_numbers)
 
             if not success:
@@ -123,6 +123,9 @@ async def amain(loop: asyncio.AbstractEventLoop):
 
 if __name__ == "__main__":
     logging.basicConfig(stream=sys.stdout, level=logging.DEBUG)
+    requests_log = logging.getLogger("requests.packages.urllib3")
+    requests_log.setLevel(logging.DEBUG)
+    requests_log.propagate = True
     loop = asyncio.get_event_loop()
     loop.create_task(amain(loop=loop))
     try:
