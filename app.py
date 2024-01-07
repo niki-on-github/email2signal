@@ -77,20 +77,26 @@ class EmailHandler:
             )
 
     async def send_signal(self, envelope: Envelope, signal_receivers: list[str]) -> bool:
+        payload = {}
         # Remove carriage returns, they break the image checking regex
         content = envelope.content.decode("utf8").replace("\r", "")
-
-        if match := re.search(self.subject_regex, content):
-            msg = match.group(1)
-        else:
-            print("no subject match found")
-            msg = content
-
-        payload = {"message": msg, "number": self.config["sender_number"].replace("\\", ""), "recipients": signal_receivers}
+        print("send_signal", content)
 
         if match := re.search(self.image_regex, content):
             image = match.group(1).replace("\n", "")
             payload["base64_attachments"] = [image]
+            
+            if match := re.search(self.subject_regex, content):
+                msg = match.group(1)
+            else:
+                print("no subject match found")
+                msg = content
+        else:
+            msg = content
+
+        payload["message"] = msg
+        payload["number"] = self.config["sender_number"].replace("\\", ""), 
+        payload["recipients"]: signal_receivers
 
         headers = {"Content-Type": "application/json"}
 
