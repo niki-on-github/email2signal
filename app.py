@@ -14,6 +14,7 @@ from aiosmtpd.controller import Controller
 from aiosmtpd.smtp import Envelope, Session, SMTP
 from sendmail import send_mail
 from email import message_from_bytes
+from email.policy import default
 
 
 class EmailHandler:
@@ -79,8 +80,8 @@ class EmailHandler:
             )
 
     async def send_signal(self, envelope: Envelope, signal_receivers: list[str]) -> bool:
-        mail = message_from_bytes(envelope.content)
-        body = msg.get_body(('html', 'plain'))
+        mail = message_from_bytes(envelope.content, policy=default)
+        body = mail.get_body(('html', 'plain'))
         if body:
             body = body.get_content()
         print("body", body)
