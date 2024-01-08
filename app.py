@@ -96,8 +96,14 @@ class EmailHandler:
         payload = {}
         
         msg = str(header_decode(mail.get('Subject'))) + "\r\n"
+
+        """
         if match := re.search(re.compile(r"description = (.*)<br"), body):
             msg += match.group(1)
+        """
+
+        for m in re.finditer(re.compile(r"description = ([^<]*)<br"), body):
+            msg += m.group(1) + "\r\n"
 
         payload["message"] = msg
         payload["number"] = self.config["sender_number"].replace("\\", "")
