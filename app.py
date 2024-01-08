@@ -5,6 +5,7 @@ import json
 import logging
 import os
 import sys
+import email
 
 from typing import Dict
 from urllib.parse import urljoin
@@ -12,6 +13,7 @@ from urllib.parse import urljoin
 from aiosmtpd.controller import Controller
 from aiosmtpd.smtp import Envelope, Session, SMTP
 from sendmail import send_mail
+from email import message_from_bytes
 
 
 class EmailHandler:
@@ -77,7 +79,15 @@ class EmailHandler:
             )
 
     async def send_signal(self, envelope: Envelope, signal_receivers: list[str]) -> bool:
+        mail = message_from_bytes(envelope.content, policy=default)
+        body = msg.get_body(('html', 'plain'))
+        if body:
+            body = body.get_content()
+        print("body", body)
+        
         payload = {}
+
+        """
         # Remove carriage returns, they break the image checking regex
         content = envelope.content.decode("utf8").replace("\r", "")
         print("send_signal", content)
@@ -93,6 +103,11 @@ class EmailHandler:
                 msg = content
         else:
             msg = content
+        """
+
+        msg = ""
+        if match := re.search(self.subject_regex, body):
+            msg = match.group(1)
 
         payload["message"] = msg
         payload["number"] = self.config["sender_number"].replace("\\", ""), 
