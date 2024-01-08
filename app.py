@@ -16,6 +16,13 @@ from sendmail import send_mail
 from email import message_from_bytes
 from email.policy import default
 
+def header_decode(header):
+    hdr = ""
+    for text, encoding in email.header.decode_header(header):
+        if isinstance(text, bytes):
+            text = text.decode(encoding or "us-ascii")
+        hdr += text
+    return hdr
 
 class EmailHandler:
     def __init__(self, config: Dict[str, str]):
@@ -87,32 +94,14 @@ class EmailHandler:
         print("body", body)
         
         payload = {}
-
-        """
-        # Remove carriage returns, they break the image checking regex
-        content = envelope.content.decode("utf8").replace("\r", "")
-        print("send_signal", content)
-
-        if match := re.search(self.image_regex, content):
-            image = match.group(1).replace("\n", "")
-            payload["base64_attachments"] = [image]
-            
-            if match := re.search(self.subject_regex, content):
-                msg = match.group(1)
-            else:
-                print("no subject match found")
-                msg = content
-        else:
-            msg = content
-        """
-
-        msg = ""
-        if match := re.search(self.subject_regex, body):
-            msg = match.group(1)
+        
+        msg = str(header_decode(mail.get('Subject'))) + "\r\n"
+        if match := re.search(re.compile(r"description = (.*)<br"), body):
+            msg += match.group(1)
 
         payload["message"] = msg
-        payload["number"] = self.config["sender_number"].replace("\\", ""), 
-        payload["recipients"]: signal_receivers
+        payload["number"] = self.config["sender_number"].replace("\\", "")
+        payload["recipients"] = signal_receivers
 
         headers = {"Content-Type": "application/json"}
 
