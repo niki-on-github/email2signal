@@ -37,7 +37,7 @@ class EmailHandler:
         self, server: SMTP, session: Session, envelope: Envelope, address, rcpt_options: list[str]
     ) -> str:
         if "self@signal.localdomain" in address:
-            envelope.rcpt_tos.append(self.config["sender_number"])
+            envelope.rcpt_tos.append(self.config["sender_number"].replace("\\", ""))
         # match and process signal number
         elif match := re.search(self.receiver_regex, address):
             try:
