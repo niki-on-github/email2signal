@@ -36,8 +36,10 @@ class EmailHandler:
     async def handle_RCPT(
         self, server: SMTP, session: Session, envelope: Envelope, address, rcpt_options: list[str]
     ) -> str:
+        if "self@signal.localdomain" in address:
+            envelope.rcpt_tos.append(self.config["sender_number"])
         # match and process signal number
-        if match := re.search(self.receiver_regex, address):
+        elif match := re.search(self.receiver_regex, address):
             try:
                 number = match.group(1)
             except TypeError:
