@@ -99,13 +99,12 @@ class EmailHandler:
         
         msg = str(header_decode(mail.get('Subject'))) + "\r\n"
 
-        """
-        if match := re.search(re.compile(r"description = (.*)<br"), body):
-            msg += match.group(1)
-        """
-
-        for m in re.finditer(re.compile(r"description = ([^<]*)<br"), body):
-            msg += m.group(1) + "\r\n"
+        if all(x in body for x in ["description = ", "<br"]):
+            # extract info from alert manager html email
+            for m in re.finditer(re.compile(r"description = ([^<]*)<br"), body):
+                msg += m.group(1) + "\r\n"
+        else:
+            msg += body
 
         payload["message"] = msg
         payload["number"] = self.config["sender_number"].replace("\\", "")
