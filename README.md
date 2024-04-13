@@ -1,4 +1,4 @@
-# Forward email notifications to signal using signal-cli
+# email2signal
 
 This project was built to solve my use case of sending K8S alerts via Signal. Most code was adopted from [LeoVerto/email2signal](https://github.com/LeoVerto/email2signal).
 
