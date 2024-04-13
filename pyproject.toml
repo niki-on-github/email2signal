@@ -1,10 +1,18 @@
-[tool.black]
-line-length = 120
-target-version = ['py37', 'py38']
-include = '\.pyi?$'
-exclude = '''
-/(
-    \.git
-  | \.idea
-)/
-'''
+[tool.poetry]
+name = "email2signal"
+version = "0.1.0"
+description = ""
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+html2text = "^2024.2.26"
+requests = "^2.31.0"
+aiosmtpd = "^1.4.5"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

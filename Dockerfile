@@ -1,18 +1,14 @@
-FROM python:3.9-alpine
+FROM python:3.11-alpine
 
-RUN pip install pipenv
+RUN pip install poetry
 
-RUN mkdir /app
 WORKDIR /app
 
-COPY Pipfile Pipfile.lock ./
+COPY pyproject.toml poetry.lock ./
+COPY email2signal ./email2signal
+RUN touch README.md
 
-RUN set -ex && pipenv install --deploy --system
-
-RUN addgroup -S app && adduser -S -G app app
-USER app
-
-COPY . .
+RUN poetry install
 
 ENV SIGNAL_REST_URL \
     SENDER_NUMBER \
@@ -22,4 +18,4 @@ ENV SIGNAL_REST_URL \
     SMTP_PORT=587
 
 EXPOSE 8025
-ENTRYPOINT ["python", "-u", "app.py"]
+ENTRYPOINT ["poetry", "run", "python", "-m", "email2signal.app"]

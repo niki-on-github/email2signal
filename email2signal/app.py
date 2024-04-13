@@ -6,15 +6,41 @@ import logging
 import os
 import sys
 import email
+import html2text
+import smtplib
+import ssl
 
 from typing import Dict
 from urllib.parse import urljoin
-
 from aiosmtpd.controller import Controller
 from aiosmtpd.smtp import Envelope, Session, SMTP
-from sendmail import send_mail
 from email import message_from_bytes
 from email.policy import default
+from socket import gaierror
+from aiosmtpd.smtp import Envelope
+
+def send_mail(host: str, port: int, user: str, password: str, e: Envelope) -> str:
+    context = ssl.create_default_context()
+
+    try:
+        server = smtplib.SMTP(host, port)
+        server.ehlo()
+        server.starttls(context=context)
+        server.ehlo()
+        server.login(user, password)
+        server.sendmail(user, e.rcpt_tos, e.content, e.mail_options, e.rcpt_options)
+
+    except (gaierror, ConnectionRefusedError):
+        return "421 Failed to connect to the server. Bad connection settings?"
+    except smtplib.SMTPAuthenticationError:
+        return "530 Failed to connect to the server. Wrong user/password?"
+    except smtplib.SMTPException as e:
+        return "554 SMTP error occurred: " + str(e)
+    finally:
+        server.quit()
+
+    return "250 OK"
+
 
 def header_decode(header):
     hdr = ""
@@ -99,11 +125,11 @@ class EmailHandler:
         
         msg = str(header_decode(mail.get('Subject'))) + "\r\n"
 
-        if all(x in body for x in ["description = ", "<br"]):
-            # extract info from alert manager html email
-            for m in re.finditer(re.compile(r"description = ([^<]*)<br"), body):
-                msg += m.group(1) + "\r\n"
+        if all(x in body for x in ["<!DOCTYPE html "]):
+            html = "<!DOCTYPE html " + body.split('<!DOCTYPE html ', 1)[-1]
+            msg += html2text.html2text(html)
         else:
+            # assume it is a plain text email
             msg += body
 
         payload["message"] = msg
