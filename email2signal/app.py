@@ -20,6 +20,10 @@ from socket import gaierror
 from aiosmtpd.smtp import Envelope
 
 def send_mail(host: str, port: int, user: str, password: str, e: Envelope) -> str:
+    if host is None or host == "":
+        print("send email is disabled because host is not configured")
+        return "250 OK"
+
     context = ssl.create_default_context()
 
     try:
