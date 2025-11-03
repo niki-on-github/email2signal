@@ -66,7 +66,10 @@ class EmailHandler:
     async def handle_RCPT(
         self, server: SMTP, session: Session, envelope: Envelope, address, rcpt_options: list[str]
     ) -> str:
+        print("check address", address)
         if "self@signal.localdomain" in address:
+            envelope.rcpt_tos.append(self.config["sender_number"].replace("\\", ""))
+        elif address.endswith("@" + str(self.config["signal_redirect_domain"])):
             envelope.rcpt_tos.append(self.config["sender_number"].replace("\\", ""))
         # match and process signal number
         elif match := re.search(self.receiver_regex, address):
@@ -162,6 +165,7 @@ async def amain(loop: asyncio.AbstractEventLoop):
     try:
         config = {
             "signal_rest_url": os.environ["SIGNAL_REST_URL"],
+            "signal_redirect_domain": os.environ["SIGNAL_REDIRECT_DOMAIN"],
             "sender_number": os.environ["SENDER_NUMBER"],
             "smtp_host": os.environ["SMTP_HOST"],
             "smtp_user": os.environ["SMTP_USER"],
