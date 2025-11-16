@@ -139,6 +139,8 @@ class EmailHandler:
             # assume it is a plain text email
             msg += body
 
+        msg = str(msg)
+
         payload["message"] = msg
         payload["number"] = self.config["sender_number"].replace("\\", "")
         payload["recipients"] = signal_receivers
@@ -150,6 +152,11 @@ class EmailHandler:
         print("url:", url)
         print("header:", headers)
         print("payload:", payload)
+
+        if ignored := os.getenv("SIGNAL_REDIRECT_CONTENT_FILTER"):
+            if any(x in msg for x in ignored.split(',') if len(x) > 2):
+                print("Message contains filtered content, do not redirect message to signal")
+                return True
 
         response = requests.request("POST", url, headers=headers, data=json.dumps(payload))
 
